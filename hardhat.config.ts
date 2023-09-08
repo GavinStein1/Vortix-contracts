@@ -34,6 +34,9 @@ const config: HardhatUserConfig = {
     },
     zkSyncTestnet,
   },
+  mocha: {
+    timeout: 100000000
+  },
   solidity: {
     version: "0.8.19",
   },

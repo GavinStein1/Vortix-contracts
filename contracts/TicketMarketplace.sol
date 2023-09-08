@@ -33,6 +33,7 @@ contract TicketMarketplace is ERC1155Holder, ReentrancyGuard {
     struct ListingGroup {
         mapping(address => Listing) listings;
         address[] sellers;
+        mapping(address => uint) isSeller;
     }
 
     event ItemListed(
@@ -99,14 +100,6 @@ contract TicketMarketplace is ERC1155Holder, ReentrancyGuard {
         _;
     }
 
-    modifier isInGroup(address eventAddress) {
-        ListingGroup storage group = s_listings[eventAddress];
-        if (group.sellers.length == 0) {
-            revert NoEventGroup(eventAddress);
-        }
-        _;
-    }
-
     modifier isApproved(address eventAddress, address seller) {
         IERC1155 ticket = IERC1155(eventAddress);
         if (!ticket.isApprovedForAll(seller, address(this))) {
@@ -153,14 +146,8 @@ contract TicketMarketplace is ERC1155Holder, ReentrancyGuard {
     }
 
     function createListing(address eventAddress, uint256 ticketId, uint256 price, uint256 amount) private {
-        uint i = 0;
-        while (i < s_listings[eventAddress].sellers.length) {
-            if (s_listings[eventAddress].sellers[i] == msg.sender) {
-                break;
-            }
-            i += 1;
-        }
-        if (i == s_listings[eventAddress].sellers.length) {
+        if (s_listings[eventAddress].isSeller[msg.sender] == 0) {
+            s_listings[eventAddress].isSeller[msg.sender] = 1;
             s_listings[eventAddress].sellers.push(msg.sender);
         }
         s_listings[eventAddress].listings[msg.sender].ticketIDs.push(ticketId);
@@ -174,18 +161,14 @@ contract TicketMarketplace is ERC1155Holder, ReentrancyGuard {
         uint256 ticketId,
         uint256 amount
     ) external isOwner(eventAddress, ticketId, msg.sender, amount) isListed(eventAddress, ticketId, msg.sender) {
-        uint i = 0;
-        for (i = 0; i < s_listings[eventAddress].sellers.length; i++) {
-            if (s_listings[eventAddress].sellers[i] == msg.sender) {
-                break;
-            }
-        }
-        delete s_listings[eventAddress].sellers[i];
         s_listings[eventAddress].listings[msg.sender].totalAmount -= amount;
+        if (s_listings[eventAddress].listings[msg.sender].totalAmount == 0) {
+            s_listings[eventAddress].isSeller[msg.sender] = 0;
+        }
         s_listings[eventAddress].listings[msg.sender].amounts[ticketId] -= amount;
+        uint256 i = 0;
         if (s_listings[eventAddress].listings[msg.sender].amounts[ticketId] == 0) {
             delete s_listings[eventAddress].listings[msg.sender].prices[ticketId];
-            i = 0;
             while (i < s_listings[eventAddress].listings[msg.sender].ticketIDs.length) {
                 if (s_listings[eventAddress].listings[msg.sender].ticketIDs[i] == ticketId) {
                     delete s_listings[eventAddress].listings[msg.sender].ticketIDs[i];

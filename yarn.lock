@@ -1148,8 +1148,10 @@
     "docker-modem" "^3.0.0"
     "tar-fs" "~2.0.1"
 
-"dotenv@^16.0.3":
-  "version" "16.0.3"
+"dotenv@^16.3.1":
+  "integrity" "sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ=="
+  "resolved" "https://registry.npmjs.org/dotenv/-/dotenv-16.3.1.tgz"
+  "version" "16.3.1"
 
 "elliptic@^6.5.2", "elliptic@^6.5.4", "elliptic@6.5.4":
   "version" "6.5.4"
@@ -2242,7 +2244,7 @@
 "tr46@~0.0.3":
   "version" "0.0.3"
 
-"ts-node@*", "ts-node@^10.9.1":
+"ts-node@*":
   "version" "10.9.1"
   dependencies:
     "@cspotcode/source-map-support" "^0.8.0"

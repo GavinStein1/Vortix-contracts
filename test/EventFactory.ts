@@ -22,15 +22,17 @@ async function deployContract(deployer: Deployer, contractName: string, construc
 
 let eventFactoryContract: Contract;
 beforeEach(async () => {
-    try {
-        const provider =  new Provider('http://localhost:8011');
-        const account1 = new Wallet(RICH_WALLET_PK, provider);
-        const deployer = new Deployer(hre, account1);
+    if (!process.env.TESTNET) {
+        try {
+            const provider =  new Provider('http://localhost:8011');
+            const account1 = new Wallet(RICH_WALLET_PK, provider);
+            const deployer = new Deployer(hre, account1);
 
-        eventFactoryContract = await deployContract(deployer, "EventFactory", []);
-    } catch (err) {
-        if (err.code == "NETWORK_ERROR") {
-            console.log("No test node found.");
+            eventFactoryContract = await deployContract(deployer, "EventFactory", []);
+        } catch (err) {
+            if (err.code == "NETWORK_ERROR") {
+                console.log("No test node found.");
+            }
         }
     }
     

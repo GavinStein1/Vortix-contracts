@@ -23,17 +23,18 @@ async function deployContract(deployer: Deployer, contractName: string, construc
 let eventFactoryContract: web3.Contract;
 let eventContract: web3.Contract;
 beforeEach(async () => {
-    const provider = new web3.Provider('http://localhost:8011');
-    const account1 = new web3.Wallet(RICH_WALLET_PK, provider);
-    const deployer = new Deployer(hre, account1);
-    
-    eventFactoryContract = await deployContract(deployer, "EventFactory", []);
-    const eventTx = await eventFactoryContract.deployEvent("New Event");
-    const eventRcpt = await eventTx.wait();
-    
-    const eventAddress = web3.utils.getDeployedContracts(eventRcpt)[0].deployedAddress;
-    eventContract = new web3.Contract(eventAddress, EventABI, account1);
-
+    if (!process.env.TESTNET) {
+        const provider = new web3.Provider('http://localhost:8011');
+        const account1 = new web3.Wallet(RICH_WALLET_PK, provider);
+        const deployer = new Deployer(hre, account1);
+        
+        eventFactoryContract = await deployContract(deployer, "EventFactory", []);
+        const eventTx = await eventFactoryContract.deployEvent("New Event");
+        const eventRcpt = await eventTx.wait();
+        
+        const eventAddress = web3.utils.getDeployedContracts(eventRcpt)[0].deployedAddress;
+        eventContract = new web3.Contract(eventAddress, EventABI, account1);
+    }
 });
 
 describe("Event", function () {
